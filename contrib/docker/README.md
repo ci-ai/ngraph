@@ -59,7 +59,7 @@ make check_clang
 
 ```
 cd contrib/docker
-make check_gcc OS=centos74 DOCKERFILE=Dockerfile.ngraph.centos74_cmake3
+make check_gcc OS=centos74 DOCKERFILE=Dockerfile.ngraph.centos74
 ```
 
 ## Helper Scripts
@@ -111,7 +111,7 @@ separate Dockerfile for ease of reference
 #### CentOS 7.4 
 
 ```
-Dockerfile: Dockerfile.ngraph.centos74_cmake3
+Dockerfile: Dockerfile.ngraph.centos74
 Reference-OS: Centos 7.4.1708
 BUILD-GCC: gcc 4.8.5
 BUILD-CLANG: not supported

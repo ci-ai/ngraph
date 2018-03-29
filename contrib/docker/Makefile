@@ -61,7 +61,7 @@ endif
 
 ifeq ("$(shell echo ${OS} | grep centos)","centos74")
     RUN_AS_USER_SCRIPT=${DOCKUSER_HOME}/ngraph-test/contrib/docker/run_as_centos_user.sh
-    DOCKERFILE=Dockerfile.ngraph.centos74_cmake3
+    DOCKERFILE=Dockerfile.ngraph.centos74
 else
     DOCKERFILE ?= "Dockerfile.ngraph"
     RUN_AS_USER_SCRIPT ?= ${DOCKUSER_HOME}/ngraph-test/contrib/docker/run_as_ubuntu_user.sh
