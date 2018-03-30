@@ -53,6 +53,10 @@ ifndef CMAKE_OPTIONS_EXTRA
     CMAKE_OPTIONS_EXTRA=
 endif
 
+ifndef THIRD_PARTY_CACHE_DIR
+    THIRD_PARTY_CACHE_DIR=
+endif
+
 # OS set to 'ubuntu1604' by default
 # can be overridden on the command line with 'make <target> OS=centos74"
 ifndef OS
@@ -140,8 +144,8 @@ build_gcc: build_docker_image
 	    --env BUILD_SUBDIR=BUILD-GCC \
 	    --env TEST_SUITE=gcc \
 	    --env PARALLEL=${PARALLEL} \
+	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN='' \
-	    --env RUN_UNIT_TESTS=false \
             --env RUN_UID="$(shell id -u)" \
             --env RUN_CMD="${DOCKUSER_HOME}/ngraph-test/contrib/docker/build-ngraph-and-test.sh" \
             "build_ngraph:${DBUILD_VERSION}" \
@@ -154,8 +158,8 @@ build_clang: build_docker_image
 	    --env BUILD_SUBDIR=BUILD-CLANG \
 	    --env TEST_SUITE=clang \
 	    --env PARALLEL=${PARALLEL} \
+	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN='' \
-	    --env RUN_UNIT_TESTS=false \
             --env RUN_UID="$(shell id -u)" \
             --env RUN_CMD="${DOCKUSER_HOME}/ngraph-test/contrib/docker/build-ngraph-and-test.sh" \
             "build_ngraph:${DBUILD_VERSION}" \
@@ -171,6 +175,7 @@ check_gcc: build_docker_image
 	    --env BUILD_SUBDIR=BUILD-GCC \
 	    --env TEST_SUITE=gcc \
 	    --env PARALLEL=${PARALLEL} \
+	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN=check \
             --env RUN_UID="$(shell id -u)" \
             --env RUN_CMD="${DOCKUSER_HOME}/ngraph-test/contrib/docker/build-ngraph-and-test.sh" \
@@ -184,6 +189,7 @@ check_clang: build_docker_image
 	    --env BUILD_SUBDIR=BUILD-CLANG \
 	    --env TEST_SUITE=clang \
 	    --env PARALLEL=${PARALLEL} \
+	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN=check \
             --env RUN_UID="$(shell id -u)" \
             --env RUN_CMD="${DOCKUSER_HOME}/ngraph-test/contrib/docker/build-ngraph-and-test.sh" \
@@ -197,8 +203,8 @@ unit_test_check_gcc: build_gcc
 	    --env BUILD_SUBDIR=BUILD-GCC \
 	    --env TEST_SUITE=gcc \
 	    --env PARALLEL=${PARALLEL} \
+	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN='' \
-	    --env RUN_UNIT_TESTS=true \
             --env RUN_UID="$(shell id -u)" \
             --env RUN_CMD="${DOCKUSER_HOME}/ngraph-test/contrib/docker/build-ngraph-and-test.sh" \
             "build_ngraph:${DBUILD_VERSION}" \
@@ -211,8 +217,8 @@ unit_test_check_clang: build_clang
 	    --env BUILD_SUBDIR=BUILD-CLANG \
 	    --env TEST_SUITE=clang \
 	    --env PARALLEL=${PARALLEL} \
+	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN='' \
-	    --env RUN_UNIT_TESTS=true \
             --env RUN_UID="$(shell id -u)" \
             --env RUN_CMD="${DOCKUSER_HOME}/ngraph-test/contrib/docker/build-ngraph-and-test.sh" \
             "build_ngraph:${DBUILD_VERSION}" \
@@ -231,6 +237,7 @@ install_gcc: build_gcc
 	    --env BUILD_SUBDIR=BUILD-GCC \
 	    --env TEST_SUITE=gcc \
 	    --env PARALLEL=${PARALLEL} \
+	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN=install \
             --env RUN_UID="$(shell id -u)" \
             --env RUN_CMD="${DOCKUSER_HOME}/ngraph-test/contrib/docker/build-ngraph-and-test.sh" \
@@ -244,6 +251,7 @@ install_clang: build_clang
 	    --env BUILD_SUBDIR=BUILD-CLANG \
 	    --env TEST_SUITE=clang \
 	    --env PARALLEL=${PARALLEL} \
+	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN=install \
             --env RUN_UID="$(shell id -u)" \
             --env RUN_CMD="${DOCKUSER_HOME}/ngraph-test/contrib/docker/build-ngraph-and-test.sh" \
