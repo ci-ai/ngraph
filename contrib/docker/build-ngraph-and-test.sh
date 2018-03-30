@@ -63,6 +63,10 @@ fi
 mkdir -p ${OUTPUT_DIR}
 chmod ug+rwx ${OUTPUT_DIR}
 
+if [ -d "${NGRAPH_REPO}/BUILD-CACHE/third-party" ]; then
+    ln -s "${NGRAPH_REPO}/BUILD-CACHE/third-party" "${OUTPUT_DIR}/third-party"
+fi
+
 #if [ -z ${NGRAPH_DISTRIBUTED_ENABLE} ] ; then
 #  NGRAPH_DISTRIBUTED_ENABLE=false
 #fi
