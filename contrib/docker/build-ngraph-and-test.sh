@@ -26,18 +26,23 @@ echo ' '
 
 export CMAKE_OPTIONS_EXTRA=""
 
+# setting for make -j
 if [ -z ${PARALLEL} ] ; then
     PARALLEL=22
 fi
 
+# make command to execute
+if [ -z ${CMD_TO_RUN} ] ; then
+    CMD_TO_RUN='check_gcc'
+fi
+
+# directory name to use for the build
 if [ -z ${BUILD_SUBDIR} ] ; then
     BUILD_SUBDIR=BUILD
 fi
 
-if [ -z ${TEST_SUITE} ] ; then
-    TEST_SUITE=gcc
-fi
-
+# Option to build with GPU backend
+# default builds with CPU only
 if [ -z ${NGRAPH_GPU_ENABLE} ] ; then
     NGRAPH_GPU_ENABLE=false
 fi
@@ -112,12 +117,13 @@ export CMAKE_OPTIONS_COMMON="-DNGRAPH_BUILD_DOXYGEN_DOCS=ON -DNGRAPH_BUILD_SPHIN
 export CMAKE_OPTIONS_GCC="${CMAKE_OPTIONS_COMMON} -DNGRAPH_INSTALL_PREFIX=${NGRAPH_REPO}/BUILD-GCC/ngraph_dist"
 export CMAKE_OPTIONS_CLANG="$CMAKE_OPTIONS_COMMON -DNGRAPH_INSTALL_PREFIX=${NGRAPH_REPO}/BUILD-CLANG/ngraph_dist -DCMAKE_CXX_COMPILER=clang++-3.9 -DCMAKE_C_COMPILER=clang-3.9 -DNGRAPH_WARNINGS_AS_ERRORS=ON -DNGRAPH_USE_PREBUILT_LLVM=TRUE"
 
-echo "TEST_SUITE=${TEST_SUITE}"
+echo "CMD_TO_RUN=${CMD_TO_RUN}"
 
+# set up the cmake environment
 if [ -z ${CMAKE_OPTIONS} ] ; then
-    if [ "$(echo ${TEST_SUITE} | grep gcc | wc -l)" != "0" ] ; then
+    if [ "$(echo ${CMD_TO_RUN} | grep gcc | wc -l)" != "0" ] ; then
         export CMAKE_OPTIONS=${CMAKE_OPTIONS_GCC}
-    elif [ "$(echo ${TEST_SUITE} | grep clang | wc -l)" != "0" ] ; then
+    elif [ "$(echo ${CMD_TO_RUN} | grep clang | wc -l)" != "0" ] ; then
         export CMAKE_OPTIONS=${CMAKE_OPTIONS_CLANG}
     else
         export CMAKE_OPTIONS=${CMAKE_OPTIONS_COMMON}
@@ -126,7 +132,6 @@ if [ -z ${CMAKE_OPTIONS} ] ; then
     echo "set CMAKE_OPTIONS=${CMAKE_OPTIONS}"
 fi
 
-
 # build and test
 export BUILD_DIR="${NGRAPH_REPO}/${BUILD_SUBDIR}"
 export GTEST_OUTPUT="xml:${BUILD_DIR}/unit-test-results.xml"
@@ -134,28 +139,33 @@ mkdir -p ${BUILD_DIR}
 chmod ug+rwx ${BUILD_DIR}
 cd ${BUILD_DIR}
 
-echo "Build and test for ${TEST_SUITE} in `pwd` with specific parameters:"
+echo "Build and test for ${CMD_TO_RUN} in `pwd` with specific parameters:"
 echo "    NGRAPH_REPO=${NGRAPH_REPO}"
 echo "    CMAKE_OPTIONS=${CMAKE_OPTIONS}"
 echo "    GTEST_OUTPUT=${GTEST_OUTPUT}"
 
+# always run cmake/make steps
 echo "Running cmake"
-cmake ${CMAKE_OPTIONS} .. 2>&1 | tee ${OUTPUT_DIR}/cmake_${TEST_SUITE}.log
+cmake ${CMAKE_OPTIONS} .. 2>&1 | tee ${OUTPUT_DIR}/cmake_${CMD_TO_RUN}.log
 echo "Running make"
-env VERBOSE=1 make -j ${PARALLEL} 2>&1 | tee ${OUTPUT_DIR}/make_${TEST_SUITE}.log
+env VERBOSE=1 make -j ${PARALLEL} 2>&1 | tee ${OUTPUT_DIR}/make_${CMD_TO_RUN}.log
 
-if [ -z ${CMD_TO_RUN} ] ; then
-    echo "No CMD_TO_RUN specified - will run cmake, make, and style-check"
+# only run cmake/make steps for build_* make targets
+if [ "$(echo ${CMD_TO_RUN} | grep build | wc -l)" != "0" ] ; then
+    echo "CMD_TO_RUN=${CMD_TO_RUN} finished - cmake/make steps completed"
 else
-    if [ "${CMD_TO_RUN}" == "unit-test-check" ]; then
+    # strip off _* from CMD_TO_RUN to pass to the ngraph make targets 
+    MAKE_CMD_TO_RUN=`echo ${CMD_TO_RUN} | sed 's/_.*//g'`
+
+    if [ "${MAKE_CMD_TO_RUN}" == "unit-test-check" ]; then
     # check style before running unit tests
         if [ -f "/usr/bin/clang-3.9" ]; then
             echo "Running make style-check"
-            env VERBOSE=1 make -j style-check 2>&1 | tee ${OUTPUT_DIR}/make_style_check_${TEST_SUITE}.log
+            env VERBOSE=1 make -j style-check 2>&1 | tee ${OUTPUT_DIR}/make_style_check_${CMD_TO_RUN}.log
         fi
     fi
 
-    echo "Running make ${CMD_TO_RUN}"
-    env VERBOSE=1 make ${CMD_TO_RUN} 2>&1 | tee ${OUTPUT_DIR}/make_${CMD_TO_RUN}_${TEST_SUITE}.log
+    echo "Running make ${MAKE_CMD_TO_RUN}"
+    env VERBOSE=1 make ${MAKE_CMD_TO_RUN} 2>&1 | tee ${OUTPUT_DIR}/make_${CMD_TO_RUN}.log
 fi
 
