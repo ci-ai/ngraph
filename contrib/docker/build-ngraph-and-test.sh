@@ -4,7 +4,7 @@ set -e
 # set -u  # Cannot use set -u, as activate below relies on unbound variables
 set -o pipefail
 
-# Debugging
+# Debugging to verify builds on CentOS 7.4 and Ubuntu 16.04
 if [ -f "/etc/centos-release" ]; then
     cat /etc/centos-release
 fi
@@ -42,10 +42,6 @@ if [ -z ${NGRAPH_GPU_ENABLE} ] ; then
     NGRAPH_GPU_ENABLE=false
 fi
 
-if [ -z ${RUN_UNIT_TESTS} ] ; then
-    RUN_UNIT_TESTS=true
-fi
-
 # Set up the environment
 if $NGRAPH_GPU_ENABLE; then
     export CMAKE_OPTIONS_EXTRA="-DNGRAPH_GPU_ENABLE=TRUE"
@@ -63,22 +59,34 @@ fi
 mkdir -p ${OUTPUT_DIR}
 chmod ug+rwx ${OUTPUT_DIR}
 
-# use a third-party cache if it is present
+# Use a third-party cache if it is present
+# If THIRD_PARTY_CACHE_DIR is set in the environment,
+#    if the directory exists,
+#        set up a symbolic link to the 'third-party' directory from the OUTPUT_DIR
+#        so the cmake/make process will not download and rebuild the third-party dependencies
+#        if they match the criteria set in the cmake files
+#    else
+#        record a message to the log that although the variable was set, the directory was not
+#        found in the build environment
+#
+# TODO: This is a workaround during testing of the EXTERNAL_PROJECTS_ROOT cmake setting
+#
 if [ -z ${THIRD_PARTY_CACHE_DIR} ]; then
-    echo "No THIRD_PARTY_CACHE_DIR specified - building third-party dependencies"
+    echo "No THIRD_PARTY_CACHE_DIR specified - will download and build third-party dependencies"
 else
     if [ -d ${THIRD_PARTY_CACHE_DIR} ]; then
         ln -s "${THIRD_PARTY_CACHE_DIR}/third-party" "${OUTPUT_DIR}/third-party"
     else
-        echo "THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} not found - building third-party dependencies"
+        echo "THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} defined, but not found - will download and build third-party dependencies"
     fi
 fi
 
+#TODO: add openmpi dependency to enable building with -DNGRAPH_DISTRIBUTED_ENABLE=TRUE
+#
 #if [ -z ${NGRAPH_DISTRIBUTED_ENABLE} ] ; then
 #  NGRAPH_DISTRIBUTED_ENABLE=false
 #fi
 
-#current problem with builds is that number of these options are not available in make files yet
 #if $NGRAPH_DISTRIBUTED_ENABLE; then
 #   source /home/environment-openmpi-ci.source
 #   which mpirun
