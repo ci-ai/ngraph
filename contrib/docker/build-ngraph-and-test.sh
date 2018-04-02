@@ -4,13 +4,17 @@ set -e
 # set -u  # Cannot use set -u, as activate below relies on unbound variables
 set -o pipefail
 
+BUILD_OS=''
+
 # Debugging to verify builds on CentOS 7.4 and Ubuntu 16.04
 if [ -f "/etc/centos-release" ]; then
     cat /etc/centos-release
+    BUILD_OS='centos74'
 fi
 
 if [ -f "/etc/lsb-release" ]; then
     cat /etc/lsb-release
+    BUILD_OS='ubuntu1604'
 fi
 
 uname -a
@@ -157,6 +161,7 @@ if [ "$(echo ${CMD_TO_RUN} | grep build | wc -l)" != "0" ] ; then
 else
     # strip off _* from CMD_TO_RUN to pass to the ngraph make targets 
     MAKE_CMD_TO_RUN=`echo ${CMD_TO_RUN} | sed 's/_.*//g'`
+    COMPILER=`echo ${CMD_TO_RUN} | sed 's/.*_//g'`
 
     if [ "${MAKE_CMD_TO_RUN}" == "unit-test-check" ]; then
     # check style before running unit tests
@@ -168,5 +173,11 @@ else
 
     echo "Running make ${MAKE_CMD_TO_RUN}"
     env VERBOSE=1 make ${MAKE_CMD_TO_RUN} 2>&1 | tee ${OUTPUT_DIR}/make_${CMD_TO_RUN}.log
+
+    if [ "${MAKE_CMD_TO_RUN}" == "install" ] ; then
+        echo "Building ngraph_dist_${COMPILER}_${BUILD_OS}.tgz"
+        tar czf ngraph_dist_${COMPILER}_${BUILD_OS}.tgz ngraph_dist 2>&1 | tee make_tarball_${COMPILER}_${BUILD_OS}.log
+        ls -l ngraph_dist_*.tgz
+    fi
 fi
 
