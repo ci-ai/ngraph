@@ -576,7 +576,16 @@ def pad(data_batch,          # type: Node
         name=None,           # type: str
         ):
     # type: (...) -> Node
-    """Return average pooling node."""
+    """Return padding node.
+
+    :param data_batch: The input node providing data.
+    :param value: The node producing the scalar value to be inserted for padding.
+    :param padding_below: The padding-below widths.
+    :param padding_above: The padding-above widths.
+    :param padding_in: The interior-padding widths.
+    :param name: The optional new name for output node.
+    :return: Return node that represents a padding of input nodes data.
+    """
     dim_count = len(data_batch.shape)
     if padding_above is None:
         padding_above = [0] * dim_count
