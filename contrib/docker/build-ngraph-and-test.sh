@@ -62,32 +62,35 @@ if [ -z ${OUTPUT_DIR} ]; then
     OUTPUT_DIR="${NGRAPH_REPO}/${BUILD_SUBDIR}"
 fi
 
-# Remove old OUTPUT_DIR directory if present
-( test -d ${OUTPUT_DIR} && rm -fr ${OUTPUT_DIR} && echo "Removed old ${OUTPUT_DIR} directory" ) || echo "Previous ${OUTPUT_DIR} directory not found"
-# Make OUTPUT_DIR directory as user
-mkdir -p ${OUTPUT_DIR}
-chmod ug+rwx ${OUTPUT_DIR}
+# Remove old OUTPUT_DIR directory if present for build_* targets
+if [ "$(echo ${CMD_TO_RUN} | grep build | wc -l)" != "0" ] ; then
+    ( test -d ${OUTPUT_DIR} && rm -fr ${OUTPUT_DIR} && echo "Removed old ${OUTPUT_DIR} directory" ) || echo "Previous ${OUTPUT_DIR} directory not found"
+    # Make OUTPUT_DIR directory as user
+    mkdir -p ${OUTPUT_DIR}
+    chmod ug+rwx ${OUTPUT_DIR}
 
-# Use a third-party cache if it is present
-# If THIRD_PARTY_CACHE_DIR is set in the environment,
-#    if the directory exists,
-#        set up a symbolic link to the 'third-party' directory from the OUTPUT_DIR
-#        so the cmake/make process will not download and rebuild the third-party dependencies
-#        if they match the criteria set in the cmake files
-#    else
-#        record a message to the log that although the variable was set, the directory was not
-#        found in the build environment
-#
-# TODO: This is a workaround during testing of the EXTERNAL_PROJECTS_ROOT cmake setting
-#
-if [ -z ${THIRD_PARTY_CACHE_DIR} ]; then
-    echo "No THIRD_PARTY_CACHE_DIR specified - will download and build third-party dependencies"
-else
-    if [ -d ${THIRD_PARTY_CACHE_DIR} ]; then
-        cd ${OUTPUT_DIR}
-        ln -s "${THIRD_PARTY_CACHE_DIR}/third-party" "third-party"
+    # Use a third-party cache if it is present
+    # If THIRD_PARTY_CACHE_DIR is set in the environment,
+    #    if the directory exists,
+    #        set up a symbolic link to the 'third-party' directory from the OUTPUT_DIR
+    #        so the cmake/make process will not download and rebuild the third-party dependencies
+    #        if they match the criteria set in the cmake files
+    #    else
+    #        record a message to the log that although the variable was set, the directory was not
+    #        found in the build environment
+    #
+    # TODO: This is a workaround during testing of the EXTERNAL_PROJECTS_ROOT cmake setting
+    #
+    if [ -z ${THIRD_PARTY_CACHE_DIR} ]; then
+        echo "No THIRD_PARTY_CACHE_DIR specified - will download and build third-party dependencies"
     else
-        echo "THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} defined, but not found - will download and build third-party dependencies"
+        if [ -d ${THIRD_PARTY_CACHE_DIR} ]; then
+            cd ${OUTPUT_DIR}
+            ln -s "${THIRD_PARTY_CACHE_DIR}/third-party" "third-party"
+        else
+            echo "THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} defined, but not found -"
+            echo "will download and build third-party dependencies"
+        fi
     fi
 fi
 
@@ -149,14 +152,13 @@ echo "    NGRAPH_REPO=${NGRAPH_REPO}"
 echo "    CMAKE_OPTIONS=${CMAKE_OPTIONS}"
 echo "    GTEST_OUTPUT=${GTEST_OUTPUT}"
 
-# always run cmake/make steps
-echo "Running cmake"
-cmake ${CMAKE_OPTIONS} .. 2>&1 | tee ${OUTPUT_DIR}/cmake_${CMD_TO_RUN}.log
-echo "Running make"
-env VERBOSE=1 make -j ${PARALLEL} 2>&1 | tee ${OUTPUT_DIR}/make_${CMD_TO_RUN}.log
-
 # only run cmake/make steps for build_* make targets
 if [ "$(echo ${CMD_TO_RUN} | grep build | wc -l)" != "0" ] ; then
+    # always run cmake/make steps
+    echo "Running cmake"
+    cmake ${CMAKE_OPTIONS} .. 2>&1 | tee ${OUTPUT_DIR}/cmake_${CMD_TO_RUN}.log
+    echo "Running make"
+    env VERBOSE=1 make -j ${PARALLEL} 2>&1 | tee ${OUTPUT_DIR}/make_${CMD_TO_RUN}.log
     echo "CMD_TO_RUN=${CMD_TO_RUN} finished - cmake/make steps completed"
 else
     # strip off _* from CMD_TO_RUN to pass to the ngraph make targets 
