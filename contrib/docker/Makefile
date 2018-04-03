@@ -142,7 +142,6 @@ build_gcc: build_docker_image
             ${VOLUME} \
 	    ${DOCKER_RUN_ENV} \
 	    --env BUILD_SUBDIR=BUILD-GCC \
-	    --env TEST_SUITE=gcc \
 	    --env PARALLEL=${PARALLEL} \
 	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN='build_gcc' \
@@ -156,7 +155,6 @@ build_clang: build_docker_image
             ${VOLUME} \
 	    ${DOCKER_RUN_ENV} \
 	    --env BUILD_SUBDIR=BUILD-CLANG \
-	    --env TEST_SUITE=clang \
 	    --env PARALLEL=${PARALLEL} \
 	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN='build_clang' \
@@ -173,7 +171,6 @@ check_gcc: build_docker_image
             ${VOLUME} \
 	    ${DOCKER_RUN_ENV} \
 	    --env BUILD_SUBDIR=BUILD-GCC \
-	    --env TEST_SUITE=gcc \
 	    --env PARALLEL=${PARALLEL} \
 	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN=check_gcc \
@@ -187,7 +184,6 @@ check_clang: build_docker_image
             ${VOLUME} \
 	    ${DOCKER_RUN_ENV} \
 	    --env BUILD_SUBDIR=BUILD-CLANG \
-	    --env TEST_SUITE=clang \
 	    --env PARALLEL=${PARALLEL} \
 	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN=check_clang \
@@ -201,7 +197,6 @@ unit_test_check_gcc: build_gcc
             ${VOLUME} \
 	    ${DOCKER_RUN_ENV} \
 	    --env BUILD_SUBDIR=BUILD-GCC \
-	    --env TEST_SUITE=gcc \
 	    --env PARALLEL=${PARALLEL} \
 	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN='unit-test-check_gcc' \
@@ -215,7 +210,6 @@ unit_test_check_clang: build_clang
             ${VOLUME} \
 	    ${DOCKER_RUN_ENV} \
 	    --env BUILD_SUBDIR=BUILD-CLANG \
-	    --env TEST_SUITE=clang \
 	    --env PARALLEL=${PARALLEL} \
 	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN='unit-test-check_clang' \
@@ -235,7 +229,6 @@ install_gcc: build_gcc
             ${VOLUME} \
 	    ${DOCKER_RUN_ENV} \
 	    --env BUILD_SUBDIR=BUILD-GCC \
-	    --env TEST_SUITE=gcc \
 	    --env PARALLEL=${PARALLEL} \
 	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN=install_gcc \
@@ -249,7 +242,6 @@ install_clang: build_clang
             ${VOLUME} \
 	    ${DOCKER_RUN_ENV} \
 	    --env BUILD_SUBDIR=BUILD-CLANG \
-	    --env TEST_SUITE=clang \
 	    --env PARALLEL=${PARALLEL} \
 	    --env THIRD_PARTY_CACHE_DIR=${THIRD_PARTY_CACHE_DIR} \
 	    --env CMD_TO_RUN=install_clang \
