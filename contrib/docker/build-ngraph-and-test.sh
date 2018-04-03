@@ -4,17 +4,13 @@ set -e
 # set -u  # Cannot use set -u, as activate below relies on unbound variables
 set -o pipefail
 
-BUILD_OS=''
-
 # Debugging to verify builds on CentOS 7.4 and Ubuntu 16.04
 if [ -f "/etc/centos-release" ]; then
     cat /etc/centos-release
-    BUILD_OS='centos74'
 fi
 
 if [ -f "/etc/lsb-release" ]; then
     cat /etc/lsb-release
-    BUILD_OS='ubuntu1604'
 fi
 
 uname -a
@@ -177,8 +173,8 @@ else
     env VERBOSE=1 make ${MAKE_CMD_TO_RUN} 2>&1 | tee ${OUTPUT_DIR}/make_${CMD_TO_RUN}.log
 
     if [ "${MAKE_CMD_TO_RUN}" == "install" ] ; then
-        echo "Building ngraph_dist_${COMPILER}_${BUILD_OS}.tgz"
-        tar czf ngraph_dist_${COMPILER}_${BUILD_OS}.tgz ngraph_dist 2>&1 | tee make_tarball_${COMPILER}_${BUILD_OS}.log
+        echo "Building ngraph_dist_${COMPILER}.tgz"
+        tar czf ngraph_dist_${COMPILER}.tgz ngraph_dist 2>&1 | tee make_tarball_${COMPILER}.log
         ls -l ngraph_dist_*.tgz
     fi
 fi
