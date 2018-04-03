@@ -33,10 +33,12 @@ namespace ngraph
                 CPUTensorView(const ngraph::element::Type& element_type,
                               const Shape& shape,
                               const std::string& name = "external");
+
                 CPUTensorView(const ngraph::element::Type& element_type,
                               const Shape& shape,
                               void* memory_pointer,
                               const std::string& name = "external");
+                
                 virtual ~CPUTensorView();
 
                 char* get_data_ptr();
